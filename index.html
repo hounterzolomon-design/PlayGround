@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
+  <meta name="theme-color" content="#08090c" />
+  <title>Octagon Rise — 3D MMA</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%230d0e12'/%3E%3Cpath d='M14 45V19h7v9.5h5V19h7v26h-7v-9.5h-5V45z' fill='%23f2ede4'/%3E%3Cpath d='M38 45V19h9c6 0 9 3.4 9 9 0 4-1.8 6.7-5 8l6 9h-8l-5-8h-1v8zm5-13h3c2 0 3-1.2 3-3s-1-3-3-3h-3z' fill='%23ff2f38'/%3E%3C/svg%3E" />
+  <meta name="description" content="Octagon Rise is a fast, cinematic 3D mixed martial arts game. Pick a fighter, read your opponent, and own the night." />
+  <link rel="stylesheet" href="src/style.css" />
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "./vendor/three/three.module.js",
+        "three/addons/": "./vendor/three/addons/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <div id="app">
+    <canvas id="scene" aria-label="3D octagon fight scene"></canvas>
+    <div class="scene-grade" aria-hidden="true"></div>
+    <div class="scene-vignette" aria-hidden="true"></div>
+    <div class="scene-grain" aria-hidden="true"></div>
+
+    <div id="loading" class="loading">
+      <div class="loading-mark">OR</div>
+      <div class="loading-title">OCTAGON <span>RISE</span></div>
+      <div class="loading-bar"><i></i></div>
+      <div class="loading-copy">BUILDING THE ARENA</div>
+    </div>
+
+    <!-- TITLE -->
+    <section id="screen-menu" class="screen menu-screen is-active">
+      <header class="topbar">
+        <a class="brand" href="#" data-action="menu" aria-label="Octagon Rise home">
+          <span class="brand-mark">OR</span>
+          <span class="brand-copy">OCTAGON<br><b>RISE</b></span>
+        </a>
+        <div class="broadcast-tag"><i></i><span>LIVE</span><small>MMA CHAMPIONSHIP</small></div>
+        <button class="icon-btn" data-action="sound" id="sound-toggle" aria-label="Toggle sound">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4Zm12.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4Zm-2.5-8v2.1a6.9 6.9 0 0 1 0 11.8V20a8.9 8.9 0 0 0 0-16Z"/></svg>
+        </button>
+      </header>
+
+      <div class="hero">
+        <p class="eyebrow"><span></span> THE WORLD'S TOUGHEST STAGE</p>
+        <h1 class="mega-title"><span>OCTAGON</span><em>RISE</em></h1>
+        <p class="hero-sub">Three rounds. No place to hide.<br>Step inside and take what's yours.</p>
+        <div class="hero-actions">
+          <button class="btn btn-primary" data-action="select">
+            <span>ENTER THE OCTAGON</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
+          </button>
+          <button class="btn btn-ghost" data-action="howto">HOW TO FIGHT</button>
+        </div>
+      </div>
+
+      <div class="menu-aside">
+        <div class="menu-card">
+          <div class="menu-card-top"><span>FIGHT NIGHT 07</span><span>LAS VEGAS, NV</span></div>
+          <div class="menu-main-event">
+            <div class="event-fighter">
+              <small>01</small>
+              <strong>MORENO</strong>
+              <span>MEXICO · 17-2</span>
+            </div>
+            <div class="versus">VS</div>
+            <div class="event-fighter right">
+              <small>02</small>
+              <strong>OKAFOR</strong>
+              <span>NIGERIA · 19-1</span>
+            </div>
+          </div>
+          <div class="menu-card-bottom"><span>MAIN EVENT</span><span>3 × 5:00</span></div>
+        </div>
+        <div class="menu-hint"><kbd>WASD</kbd> MOVE <i></i> <kbd>J</kbd> STRIKE <i></i> <kbd>SPACE</kbd> TAKEDOWN</div>
+      </div>
+
+      <footer class="menu-footer">
+        <div class="stat-strip">
+          <div><b>03</b><span>FIGHTERS</span></div>
+          <div><b>05</b><span>MOVE SET</span></div>
+          <div><b>∞</b><span>REMATCHES</span></div>
+        </div>
+        <div class="build-tag">OR ENGINE · WEBGL</div>
+      </footer>
+    </section>
+
+    <!-- FIGHTER SELECT -->
+    <section id="screen-select" class="screen select-screen">
+      <header class="topbar select-topbar">
+        <button class="back-btn" data-action="menu"><span>←</span> MAIN MENU</button>
+        <div class="select-heading"><small>FIGHT NIGHT 07</small><strong>CHOOSE YOUR FIGHTER</strong></div>
+        <div class="select-opponent">OPPONENT <b id="select-opponent-name">MARCUS OKAFOR</b></div>
+      </header>
+
+      <div class="select-stage">
+        <div class="select-side-copy left">
+          <p class="eyebrow"><span></span> RED CORNER</p>
+          <h2 id="selected-name">KAI<br>MORENO</h2>
+          <p id="selected-nickname">“EL FUEGO”</p>
+          <div class="record-line" id="selected-record">17-2-0 · 5'11" · 155 LBS</div>
+        </div>
+        <div class="select-side-copy right">
+          <p class="eyebrow"><span></span> BLUE CORNER</p>
+          <h2 id="rival-name">MARCUS<br>OKAFOR</h2>
+          <p id="rival-nickname">“THE TITAN”</p>
+          <div class="record-line" id="rival-record">19-1-0 · 6'4" · 205 LBS</div>
+        </div>
+      </div>
+
+      <div id="fighter-cards" class="fighter-cards" role="listbox" aria-label="Select a fighter"></div>
+
+      <div class="select-actions">
+        <div class="stat-panel">
+          <div class="stat-row"><span>STRIKING</span><i><b id="stat-striking"></b></i><em id="stat-striking-num">88</em></div>
+          <div class="stat-row"><span>POWER</span><i><b id="stat-power"></b></i><em id="stat-power-num">78</em></div>
+          <div class="stat-row"><span>SPEED</span><i><b id="stat-speed"></b></i><em id="stat-speed-num">92</em></div>
+          <div class="stat-row"><span>GRAPPLING</span><i><b id="stat-grapple"></b></i><em id="stat-grapple-num">66</em></div>
+        </div>
+        <button class="btn btn-primary btn-fight" data-action="fight"><span>LOCK IT IN</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button>
+        <p class="select-note">TAP A FIGHTER TO PREVIEW · OPPONENT IS MATCHED BY DIVISION</p>
+      </div>
+    </section>
+
+    <!-- HUD -->
+    <section id="hud" class="hud">
+      <div class="hud-top">
+        <div class="fighter-hud left" id="hud-p1">
+          <div class="hud-name"><span class="corner-dot red"></span><div><b id="hud-p1-name">KAI MORENO</b><small id="hud-p1-nick">EL FUEGO</small></div><em id="hud-p1-record">17-2</em></div>
+          <div class="bars">
+            <div class="health-bar"><i id="hud-p1-health"></i><span class="health-ghost" id="hud-p1-ghost"></span></div>
+            <div class="stamina-bar"><i id="hud-p1-stamina"></i></div>
+          </div>
+          <div class="round-pips" id="pips-p1"><i></i><i></i><i></i></div>
+        </div>
+
+        <div class="fight-clock">
+          <div class="clock-top"><span id="round-label">ROUND 1</span><span class="live-dot"></span></div>
+          <div class="timer" id="timer">1:00</div>
+          <div class="clock-sub">OCTAGON RISE</div>
+        </div>
+
+        <div class="fighter-hud right" id="hud-p2">
+          <div class="hud-name"><em id="hud-p2-record">19-1</em><div><b id="hud-p2-name">MARCUS OKAFOR</b><small id="hud-p2-nick">THE TITAN</small></div><span class="corner-dot blue"></span></div>
+          <div class="bars">
+            <div class="health-bar right"><i id="hud-p2-health"></i><span class="health-ghost" id="hud-p2-ghost"></span></div>
+            <div class="stamina-bar right"><i id="hud-p2-stamina"></i></div>
+          </div>
+          <div class="round-pips right" id="pips-p2"><i></i><i></i><i></i></div>
+        </div>
+      </div>
+
+      <div class="combo-wrap" id="combo-wrap">
+        <div class="combo-num" id="combo-num">3</div>
+        <div class="combo-copy">HIT COMBO<small>KEEP IT FLOWING</small></div>
+      </div>
+
+      <div class="fight-status" id="fight-status">
+        <span class="status-icon">◈</span>
+        <span id="fight-status-text">CLOSE THE DISTANCE</span>
+      </div>
+
+      <div class="hud-bottom">
+        <div class="hud-tip" id="hud-tip"><kbd>SHIFT</kbd> HOLD TO BLOCK <i></i> <kbd>J</kbd><kbd>K</kbd><kbd>L</kbd> STRIKE</div>
+        <div class="move-hint"><span id="stance-label">ORTHODOX</span><i></i><b id="stamina-label">100</b><small>STAMINA</small></div>
+      </div>
+    </section>
+
+    <!-- Touch controls -->
+    <div id="touch-controls" class="touch-controls" aria-hidden="true">
+      <div id="joystick" class="joystick"><div class="joystick-ring"></div><div id="joystick-knob" class="joystick-knob"></div></div>
+      <div class="touch-actions">
+        <button class="touch-btn block" data-touch="block">BLOCK</button>
+        <button class="touch-btn takedown" data-touch="takedown">TAKE<br>DOWN</button>
+        <button class="touch-btn jab" data-touch="jab"><b>JAB</b><small>J</small></button>
+        <button class="touch-btn heavy" data-touch="heavy"><b>CROSS</b><small>K</small></button>
+        <button class="touch-btn kick" data-touch="kick"><b>KICK</b><small>L</small></button>
+      </div>
+    </div>
+
+    <!-- Round / KO announcements -->
+    <div id="round-card" class="round-card">
+      <div class="round-rule"></div>
+      <p id="round-kicker">ROUND ONE</p>
+      <div id="round-big">1</div>
+      <h3 id="round-message">FIGHT</h3>
+      <div class="round-rule"></div>
+    </div>
+    <div id="announce" class="announce"><span id="announce-main">KO</span><small id="announce-sub">KNOCKOUT</small></div>
+    <div id="callout" class="callout"><span id="callout-text">COUNTER</span><small id="callout-bonus">+25% DAMAGE</small></div>
+    <div id="damage-layer" class="damage-layer"></div>
+
+    <!-- HOW TO FIGHT -->
+    <div id="howto" class="modal">
+      <div class="modal-panel howto-panel">
+        <button class="modal-close" data-action="close-howto" aria-label="Close">×</button>
+        <p class="eyebrow"><span></span> THE FIGHTER'S HANDBOOK</p>
+        <h2>HOW TO <em>FIGHT</em></h2>
+        <div class="howto-grid">
+          <div class="howto-block">
+            <h3>STRIKE</h3>
+            <div class="key-row"><kbd>J</kbd><div><b>JAB</b><span>Fast, safe, builds combos.</span></div></div>
+            <div class="key-row"><kbd>K</kbd><div><b>CROSS</b><span>Heavy hand. Opens the guard.</span></div></div>
+            <div class="key-row"><kbd>L</kbd><div><b>HEAD KICK</b><span>Big damage. Big risk.</span></div></div>
+          </div>
+          <div class="howto-block">
+            <h3>MOVE</h3>
+            <div class="key-row"><kbd>W A S D</kbd><div><b>CIRCLE</b><span>Cut angles. Stay off the fence.</span></div></div>
+            <div class="key-row"><kbd>SHIFT</kbd><div><b>BLOCK</b><span>Hold to shell up. Drains stamina.</span></div></div>
+            <div class="key-row"><kbd>SPACE</kbd><div><b>TAKEDOWN</b><span>Drop them. Change the round.</span></div></div>
+          </div>
+          <div class="howto-block tips-block">
+            <h3>WIN THE NIGHT</h3>
+            <p><b>01</b> Counter a strike during its wind-up for bonus damage.</p>
+            <p><b>02</b> Empty stamina and your guard breaks. Breathe.</p>
+            <p><b>03</b> Win rounds on damage, or finish it before the judges.</p>
+            <div class="touch-note">ON MOBILE: USE THE STICK AND ACTION BUTTONS.</div>
+          </div>
+        </div>
+        <button class="btn btn-primary" data-action="close-howto"><span>GOT IT</span></button>
+      </div>
+    </div>
+
+    <!-- PAUSE -->
+    <div id="pause" class="modal">
+      <div class="modal-panel pause-panel">
+        <p class="eyebrow"><span></span> CORNER TIMEOUT</p>
+        <h2>PAUSED</h2>
+        <div class="pause-stack">
+          <button class="btn btn-primary" data-action="resume"><span>BACK TO THE FIGHT</span></button>
+          <button class="btn btn-ghost" data-action="howto">CONTROLS</button>
+          <button class="btn btn-ghost" data-action="quit">QUIT TO MENU</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT -->
+    <section id="result" class="result-screen">
+      <div class="result-flare" aria-hidden="true"></div>
+      <div class="result-inner">
+        <p class="eyebrow"><span></span> <b id="result-event">FIGHT NIGHT 07 · LAS VEGAS</b></p>
+        <h2 id="result-title">VICTORY</h2>
+        <div class="result-method"><span id="result-method">KO</span><small id="result-time">ROUND 2 · 1:42</small></div>
+        <div class="result-fighters">
+          <div class="result-fighter winner" id="result-winner">
+            <small>WINNER</small><strong>KAI MORENO</strong><span>EL FUEGO</span>
+          </div>
+          <div class="result-vs">—</div>
+          <div class="result-fighter" id="result-loser">
+            <small>DEFEATED</small><strong>MARCUS OKAFOR</strong><span>THE TITAN</span>
+          </div>
+        </div>
+        <div class="result-stats" id="result-stats"></div>
+        <div class="result-actions">
+          <button class="btn btn-primary" data-action="rematch"><span>RUN IT BACK</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button>
+          <button class="btn btn-ghost" data-action="select">CHANGE FIGHTER</button>
+          <button class="btn btn-ghost" data-action="menu">MAIN MENU</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="rotate-hint">
+      <span>↻</span>
+      <b>ROTATE YOUR DEVICE</b>
+      <small>LANDSCAPE BUILT BETTER</small>
+    </div>
+  </div>
+
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>
