@@ -33,6 +33,8 @@ export class Game {
     this.canvas = document.getElementById("scene");
     this.ui = new GameUI();
     this.audio = new SoundEngine();
+    // Combat code addresses the sound engine as `game.sound`; keep both names in sync.
+    this.sound = this.audio;
     this.state = "loading";
     this.time = 0;
     this.timeScale = 1;
@@ -302,6 +304,7 @@ export class Game {
     const winner = winnerIndex === 0 ? this.p1 : this.p2;
     const loser = winnerIndex === 0 ? this.p2 : this.p1;
     winner.setVictory(true);
+    loser.setVictory(false);
     if (!loser.ko) loser.setBlocking(false);
     const stats = this.match.stats[0];
     const accuracy = stats.strikes ? Math.round((stats.landed / stats.strikes) * 100) : 0;
@@ -503,6 +506,7 @@ export class Game {
       if (event.code === "ShiftLeft" || event.code === "ShiftRight") {
         this.keyboardBlock = true;
       }
+      if (this.howtoOpen) return;
       if (this.state === "menu" && (event.code === "Enter" || event.code === "Space")) {
         this.showSelect();
         return;
@@ -650,6 +654,9 @@ export class Game {
           break;
         case "resume":
           this.resumeGame();
+          break;
+        case "pause":
+          this.pauseGame();
           break;
         case "quit":
           this.returnToMenu();
@@ -890,11 +897,11 @@ export class Game {
         const l = loser.root.position;
         const mid = new THREE.Vector3((w.x + l.x) / 2, 0, (w.z + l.z) / 2);
         const ang = Math.atan2(w.x - l.x, w.z - l.z) + 1.0 + Math.sin(this.koTimer * 0.25) * 0.1;
-        const radius = portrait ? 4.6 : 4.2;
-        desired.set(mid.x + Math.sin(ang) * radius, (portrait ? 3.3 : 3.0) + Math.sin(this.koTimer * 0.35) * 0.2, mid.z + Math.cos(ang) * radius);
+        const radius = portrait ? 4.85 : 4.2;
+        desired.set(mid.x + Math.sin(ang) * radius, (portrait ? 3.4 : 3.0) + Math.sin(this.koTimer * 0.35) * 0.2, mid.z + Math.cos(ang) * radius);
         look.set(mid.x, 1.0, mid.z);
       }
-      targetFov = portrait ? 73 : 47;
+      targetFov = portrait ? 78 : 47;
       rate = 2.5;
     } else if (this.state === "result") {
       const angle = this.time * 0.12 + 2.3;

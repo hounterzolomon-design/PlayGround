@@ -294,7 +294,9 @@ export class Combat {
       // Don't waste big moves at max stamina if opponent is circling away.
       if (chosen === "heavy" && Math.random() < 0.22) chosen = "jab";
       if (this.attack(chosen, false)) {
-        this.aiCooldown = random(0.34, 0.88) / (0.5 + profile.patience * 0.5);
+        // Give the player a readable beat between exchanges without making the
+        // AI passive. Patient fighters take a little longer to commit.
+        this.aiCooldown = random(0.52, 1.06) / (0.72 + profile.patience * 0.22);
       }
     } else if (this.aiCooldown <= 0 && dist > 3.4 && Math.random() < 0.35 * dt * 6) {
       // occasional circling feint
@@ -364,6 +366,9 @@ export class Combat {
     }
 
     let damage = move.damage * attacker.config.power * random(0.93, 1.07);
+    // The AI has perfect information; trim its output slightly so a first round
+    // is a fight rather than a punishment.
+    if (idx === 1) damage *= 0.88;
     if (blocked) {
       m.stamina[1 - idx] = Math.max(0, m.stamina[1 - idx] - (move.key === "takedown" ? 16 : 11));
       if (m.stamina[1 - idx] <= 0) {

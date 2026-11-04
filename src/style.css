@@ -1291,6 +1291,38 @@ kbd {
   font-size: 10px;
 }
 
+.hud-pause {
+  position: absolute;
+  z-index: 7;
+  top: calc(max(18px, env(safe-area-inset-top)) + 78px);
+  left: 50%;
+  width: 30px;
+  height: 30px;
+  margin-left: -15px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  background: rgba(5, 6, 9, 0.46);
+  color: rgba(255, 255, 255, 0.62);
+  backdrop-filter: blur(6px);
+  pointer-events: auto;
+  transition: color 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+
+.hud-pause svg {
+  width: 12px;
+  height: 12px;
+  fill: currentColor;
+}
+
+.hud-pause:hover,
+.hud-pause:focus-visible {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 47, 56, 0.28);
+}
+
 .hud-bottom {
   position: absolute;
   left: clamp(20px, 4vw, 64px);

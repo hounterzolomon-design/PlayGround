@@ -52,6 +52,7 @@ export class GameUI {
     this.statusDefault = "";
     this.lastStatus = "";
     this.lastRound = -1;
+    this.ghostHealth = [1, 1];
     this._buildCards();
   }
 
@@ -179,9 +180,14 @@ export class GameUI {
     const hp = match.health;
     const stamina = match.stamina;
     this._bar("hud-p1-health", hp[0] / 100);
-    this._bar("hud-p1-ghost", hp[0] / 100);
     this._bar("hud-p2-health", hp[1] / 100);
-    this._bar("hud-p2-ghost", hp[1] / 100);
+    // Lagging "ghost" bars make recent damage easy to read during a exchange.
+    for (let i = 0; i < 2; i++) {
+      const target = hp[i] / 100;
+      this.ghostHealth[i] = Math.min(1, Math.max(target, this.ghostHealth[i] + (target - this.ghostHealth[i]) * 0.14));
+    }
+    this._bar("hud-p1-ghost", this.ghostHealth[0]);
+    this._bar("hud-p2-ghost", this.ghostHealth[1]);
     this._bar("hud-p1-stamina", stamina[0] / 100);
     this._bar("hud-p2-stamina", stamina[1] / 100);
 
